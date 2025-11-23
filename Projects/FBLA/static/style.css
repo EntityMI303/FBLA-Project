@@ -1,0 +1,241 @@
+body {
+    background-color: #f0f8ff;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+/* Hero Section */
+.hero {
+    background: linear-gradient(to right, #0077b6, #00b4d8);
+    color: white;
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.hero h1 {
+    font-size: 3em;
+    margin-bottom: 10px;
+}
+
+.hero p {
+    font-size: 1.3em;
+    margin-bottom: 20px;
+}
+/* Features Section */
+.features {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 40px 20px;
+    background-color: #f0f8ff;
+}
+
+.feature-box {
+    background-color: slategray;
+    color: white;
+    width: 400px;
+    margin: 20px;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.feature-box h2 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+.feature-box p {
+    font-size: 1.1em;
+    margin-bottom: 20px;
+}
+
+/* Footer */
+footer {
+    background-color: #e0e0e0;
+    text-align: center;
+    padding: 20px;
+    font-size: 0.9em;
+    color: #555;
+}
+
+/* Button styling */
+button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 8px 4px;
+    cursor: pointer;
+    border-radius: 12px;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+/* Layout container for form + chart */
+.layout-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+/* Form container */
+.sales-container {
+    flex: 1 1 300px;
+    max-width: 600px;
+    margin-right: 20px;
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+.sales-container h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+}
+
+.sales-container form {
+    display: flex;
+    flex-direction: column;
+}
+
+.sales-container label {
+    margin-bottom: 6px;
+    font-weight: bold;
+    color: #444;
+}
+
+.sales-container input,
+.sales-container select {
+    margin-bottom: 15px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+.sales-container input:focus,
+.sales-container select:focus {
+    border-color: #0078d4;
+    outline: none;
+}
+
+.sales-container input[type="submit"] {
+    margin-top: 10px;
+    padding: 12px;
+    font-size: 16px;
+    background-color: #0078d4;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.sales-container input[type="submit"]:hover {
+    background-color: #005fa3;
+}
+
+/* Chart container */
+.chart-container {
+    flex: 1 1 600px;
+    max-width: 100%;
+    max-height: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.chart-controls {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+.chart-controls input {
+    margin-right: 8px;
+}
+
+#salesChart {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive layout for small screens */
+@media (max-width: 768px) {
+    .layout-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .sales-container {
+        max-width: 100%;
+        margin-right: 0;
+        margin-bottom: 30px;
+    }
+
+    .chart-container {
+        max-width: 100%;
+        max-height: 100%;
+    }
+}
+
+.nav-link {
+    display: inline-block;
+    margin: 10px 15px;
+    padding: 10px 20px;
+    background-color: #0078d4;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+}
+
+.nav-link:hover {
+    background-color: #005fa3;
+}
+
+.container{
+    width: 80%;
+    margin: auto;
+    padding: 20px;
+}
+
+.chart{
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    height: 700px;
+    width: 1200px;
+}
+
+#downloadCSV {
+    background-color: #0078d4;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin-left: 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#downloadCSV:hover {
+    background-color: #005fa3;
+}

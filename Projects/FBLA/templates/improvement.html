@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Improvement Guide</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</head>
+<body>
+    <div class="layout-container">
+        <div class="sales-container">
+            <h1>Improvement Guide for {{ data.product }}</h1>
+            <ul>
+                <li>Previous Sales: ${{ data.previous_sales }}</li>
+                <li>Price: ${{ data.price }}</li>
+                <li>Marketing Budget: ${{ data.marketing_budget }}</li>
+                <li>Season: {{ data.season }}</li>
+                <li>Timeframe: {{ data.year }} years, {{ data.month }} months, {{ data.weeks }} weeks, {{ data.days }}
+                    days</li>
+            </ul>
+
+            <h2>AI Feedback</h2>
+            <p>{{ feedback }}</p>
+
+            <h2>Visual Insight</h2>
+            <div style="height:400px;">
+                <canvas id="improvementChart" 
+                    data-previous="{{ data.previous_sales }}" 
+                    data-predicted="{{ data.predicted_sales }}"
+                    data-actual="{{ data.actual_sales }}" 
+                    data-marketing="{{ data.marketing_budget }}">
+                </canvas>
+            </div>
+
+            <a href="{{ url_for('sales') }}"><button>Back to Sales</button></a>
+        </div>
+    </div>
+</body>
+</html>
