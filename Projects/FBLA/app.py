@@ -27,7 +27,11 @@ def sales():
             'weeks': request.form.get('weeks'),
             'days': request.form.get('days')
         }
+        # Clear old feedback when new data is submitted
+        if 'ai_feedback' in data:
+            del data['ai_feedback']
         session['sales_data'] = data
+
         file_path = os.path.join(os.path.dirname(__file__), 'sales_data.json')
         with open(file_path, 'w') as f:
             json.dump(data, f, indent=2)
@@ -58,7 +62,7 @@ def improvement():
     data['predicted_sales'] = predicted_sales
     data['actual_sales'] = actual_sales
 
-    # Cache AI feedback so we don't call API every refresh
+    # Only call API if feedback not cached
     if 'ai_feedback' not in data:
         headers = {"Authorization": f"Bearer {api_key}"}
         payload = {
@@ -74,7 +78,7 @@ def improvement():
             r.raise_for_status()
             response_json = r.json()
             ai_feedback = response_json["choices"][0]["message"]["content"]
-            data['ai_feedback'] = ai_feedback  # store in session cache
+            data['ai_feedback'] = ai_feedback  # cache feedback
             session['sales_data'] = data
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 429:
@@ -90,9 +94,13 @@ def improvement():
 @app.route('/update-sales-data', methods=['POST'])
 def update_sales_data():
     updated = request.get_json()
+    # Clear cached feedback when data is updated
+    if 'ai_feedback' in updated:
+        del updated['ai_feedback']
     file_path = os.path.join(os.path.dirname(__file__), 'sales_data.json')
     with open(file_path, 'w') as f:
         json.dump(updated, f, indent=2)
+    session['sales_data'] = updated
     return '', 204
 
 if __name__ == '__main__':
