@@ -58,23 +58,32 @@ def improvement():
     data['predicted_sales'] = predicted_sales
     data['actual_sales'] = actual_sales
 
-    # Call OpenAI API for AI-generated feedback
-    headers = {"Authorization": f"Bearer {api_key}"}
-    payload = {
-        "model": "gpt-4o-mini",
-        "messages": [
-            {"role": "system", "content": "You are a business consultant giving constructive improvement advice."},
-            {"role": "user", "content": f"Sales data: {data}. Provide improvement suggestions in a professional tone."}
-        ]
-    }
+    # Cache AI feedback so we don't call API every refresh
+    if 'ai_feedback' not in data:
+        headers = {"Authorization": f"Bearer {api_key}"}
+        payload = {
+            "model": "gpt-4o-mini",
+            "messages": [
+                {"role": "system", "content": "You are a business consultant giving constructive improvement advice."},
+                {"role": "user", "content": f"Sales data: {data}. Provide improvement suggestions in a professional tone."}
+            ]
+        }
 
-    try:
-        r = requests.post("https://api.openai.com/v1/chat/completions", json=payload, headers=headers)
-        r.raise_for_status()
-        response_json = r.json()
-        ai_feedback = response_json["choices"][0]["message"]["content"]
-    except Exception as e:
-        ai_feedback = f"Error generating AI feedback: {e}"
+        try:
+            r = requests.post("https://api.openai.com/v1/chat/completions", json=payload, headers=headers)
+            r.raise_for_status()
+            response_json = r.json()
+            ai_feedback = response_json["choices"][0]["message"]["content"]
+            data['ai_feedback'] = ai_feedback  # store in session cache
+            session['sales_data'] = data
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 429:
+                ai_feedback = "Rate limit reached. Please wait or check your OpenAI usage/billing."
+            else:
+                ai_feedback = f"Error generating AI feedback: {e}"
+            data['ai_feedback'] = ai_feedback
+    else:
+        ai_feedback = data['ai_feedback']
 
     return render_template('improvement.html', data=data, feedback=ai_feedback)
 
