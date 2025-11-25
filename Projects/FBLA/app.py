@@ -1,6 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, session, send_file
 import json, os, requests
-import random
+from dotenv import load_dotenv
+
+# Load environment variables from .env
+load_dotenv()
+api_key = os.getenv("OPENAI_API_KEY")
 
 app = Flask(__name__)
 app.secret_key = 'business25'
@@ -38,8 +42,6 @@ def download_sales():
         return send_file(file_path, as_attachment=True)
     return "sales_data.json not found", 404
 
-import random
-
 @app.route('/business-improvement-guide')
 def improvement():
     data = session.get('sales_data')
@@ -49,23 +51,30 @@ def improvement():
     previous_sales = float(data.get('previous_sales', 0))
     marketing_budget = float(data.get('marketing_budget', 0))
 
+    # Simulated predicted and actual sales
     predicted_sales = round(previous_sales * (1.1 + marketing_budget * 0.001), 2)
     actual_sales = round(predicted_sales * (0.95 + 0.1), 2)
 
     data['predicted_sales'] = predicted_sales
     data['actual_sales'] = actual_sales
 
-    # Call AI API for feedback
-    headers = {"Authorization": f"Bearer YOUR_API_KEY"}
+    # Call OpenAI API for AI-generated feedback
+    headers = {"Authorization": f"Bearer {api_key}"}
     payload = {
         "model": "gpt-4o-mini",
         "messages": [
             {"role": "system", "content": "You are a business consultant giving constructive improvement advice."},
-            {"role": "user", "content": f"Sales data: {data}. Provide improvement suggestions."}
+            {"role": "user", "content": f"Sales data: {data}. Provide improvement suggestions in a professional tone."}
         ]
     }
-    r = requests.post("https://api.openai.com/v1/chat/completions", json=payload, headers=headers)
-    ai_feedback = r.json()["choices"][0]["message"]["content"]
+
+    try:
+        r = requests.post("https://api.openai.com/v1/chat/completions", json=payload, headers=headers)
+        r.raise_for_status()
+        response_json = r.json()
+        ai_feedback = response_json["choices"][0]["message"]["content"]
+    except Exception as e:
+        ai_feedback = f"Error generating AI feedback: {e}"
 
     return render_template('improvement.html', data=data, feedback=ai_feedback)
 
