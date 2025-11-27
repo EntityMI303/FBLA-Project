@@ -1,13 +1,23 @@
 from flask import Flask, render_template, request, redirect, url_for, session, send_file
-import json, os, requests
+import json, os
 from dotenv import load_dotenv
+from transformers import pipeline
+import torch
 
-# Load environment variables from .env
+# Load environment variables from .env (optional, not needed for local Transformers)
 load_dotenv()
-api_key = os.getenv("OPENAI_API_KEY")
 
 app = Flask(__name__)
-app.secret_key = 'business25'
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "business25")
+
+# Initialize local Hugging Face pipeline once at startup
+# Using distilgpt2 for lightweight text generation; replace with a larger model if desired
+local_generator = pipeline(
+    "text-generation",
+    model="distilgpt2",
+    torch_dtype=torch.float32,
+    device=-1  # -1 = CPU; use 0 if you have GPU
+)
 
 @app.route('/')
 def home():
@@ -58,23 +68,13 @@ def improvement():
     data['predicted_sales'] = predicted_sales
     data['actual_sales'] = actual_sales
 
-    # Call OpenAI API for AI-generated feedback
-    headers = {"Authorization": f"Bearer {api_key}"}
-    payload = {
-        "model": "gpt-4o-mini",
-        "messages": [
-            {"role": "system", "content": "You are a business consultant giving constructive improvement advice."},
-            {"role": "user", "content": f"Sales data: {data}. Provide improvement suggestions in a professional tone."}
-        ]
-    }
-
+    # Local AI feedback using Transformers + Torch
     try:
-        r = requests.post("https://api.openai.com/v1/chat/completions", json=payload, headers=headers)
-        r.raise_for_status()
-        response_json = r.json()
-        ai_feedback = response_json["choices"][0]["message"]["content"]
+        prompt = f"Sales data: {data}. Provide improvement suggestions in a professional tone."
+        local_output = local_generator(prompt, max_length=150, num_return_sequences=1)
+        ai_feedback = local_output[0]["generated_text"]
     except Exception as e:
-        ai_feedback = f"Error generating AI feedback: {e}"
+        ai_feedback = f"Error generating local AI feedback: {e}"
 
     return render_template('improvement.html', data=data, feedback=ai_feedback)
 
