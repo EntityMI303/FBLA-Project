@@ -1,6 +1,6 @@
 flask
 gunicorn
-requests
 python-dotenv
-torch --index-url https://download.pytorch.org/whl/cpu
 transformers
+torch --index-url https://download.pytorch.org/whl/cpu
+requests
