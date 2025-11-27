@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: fbla-project
+    env: python
+    plan: free
+    buildCommand: pip install -r Projects/FBLA/requirements.txt
+    startCommand: gunicorn Projects.FBLA.app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
