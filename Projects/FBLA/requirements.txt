@@ -3,4 +3,5 @@ gunicorn
 python-dotenv
 requests
 transformers
-torch==2.9.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
+torch==2.9.1+cpu
+-f https://download.pytorch.org/whl/torch_stable.html
