@@ -1,13 +1,23 @@
 from flask import Flask, render_template, request, redirect, url_for, session, send_file
-import json, os, requests
+import json, os
 from dotenv import load_dotenv
+from transformers import pipeline
+import torch
 
-# Load environment variables from .env
+# Load environment variables from .env (optional, not needed for local Transformers)
 load_dotenv()
-api_key = os.getenv("OPENAI_API_KEY")
 
 app = Flask(__name__)
-app.secret_key = 'business25'
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "business25")
+
+# Initialize local Hugging Face pipeline once at startup
+# Using distilgpt2 for lightweight text generation; replace with a larger model if desired
+local_generator = pipeline(
+    "text-generation",
+    model="distilgpt2",
+    torch_dtype=torch.float32,
+    device=-1  # -1 = CPU; use 0 if you have GPU
+)
 
 @app.route('/')
 def home():
@@ -27,11 +37,7 @@ def sales():
             'weeks': request.form.get('weeks'),
             'days': request.form.get('days')
         }
-        # Clear old feedback when new data is submitted
-        if 'ai_feedback' in data:
-            del data['ai_feedback']
         session['sales_data'] = data
-
         file_path = os.path.join(os.path.dirname(__file__), 'sales_data.json')
         with open(file_path, 'w') as f:
             json.dump(data, f, indent=2)
@@ -62,45 +68,22 @@ def improvement():
     data['predicted_sales'] = predicted_sales
     data['actual_sales'] = actual_sales
 
-    # Only call API if feedback not cached
-    if 'ai_feedback' not in data:
-        headers = {"Authorization": f"Bearer {api_key}"}
-        payload = {
-            "model": "gpt-4o-mini",
-            "messages": [
-                {"role": "system", "content": "You are a business consultant giving constructive improvement advice."},
-                {"role": "user", "content": f"Sales data: {data}. Provide improvement suggestions in a professional tone."}
-            ]
-        }
-
-        try:
-            r = requests.post("https://api.openai.com/v1/chat/completions", json=payload, headers=headers)
-            r.raise_for_status()
-            response_json = r.json()
-            ai_feedback = response_json["choices"][0]["message"]["content"]
-            data['ai_feedback'] = ai_feedback  # cache feedback
-            session['sales_data'] = data
-        except requests.exceptions.HTTPError as e:
-            if e.response.status_code == 429:
-                ai_feedback = "Rate limit reached. Please wait or check your OpenAI usage/billing."
-            else:
-                ai_feedback = f"Error generating AI feedback: {e}"
-            data['ai_feedback'] = ai_feedback
-    else:
-        ai_feedback = data['ai_feedback']
+    # Local AI feedback using Transformers + Torch
+    try:
+        prompt = f"Sales data: {data}. Provide improvement suggestions in a professional tone."
+        local_output = local_generator(prompt, max_length=150, num_return_sequences=1)
+        ai_feedback = local_output[0]["generated_text"]
+    except Exception as e:
+        ai_feedback = f"Error generating local AI feedback: {e}"
 
     return render_template('improvement.html', data=data, feedback=ai_feedback)
 
 @app.route('/update-sales-data', methods=['POST'])
 def update_sales_data():
     updated = request.get_json()
-    # Clear cached feedback when data is updated
-    if 'ai_feedback' in updated:
-        del updated['ai_feedback']
     file_path = os.path.join(os.path.dirname(__file__), 'sales_data.json')
     with open(file_path, 'w') as f:
         json.dump(updated, f, indent=2)
-    session['sales_data'] = updated
     return '', 204
 
 if __name__ == '__main__':
