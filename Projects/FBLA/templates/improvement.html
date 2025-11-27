@@ -5,6 +5,20 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <style>
+        .feedback-box {
+            background: #f4f8ff;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 1.1em;
+            line-height: 1.5;
+        }
+        .chart-container {
+            height: 400px;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
     <div class="layout-container">
@@ -15,15 +29,16 @@
                 <li>Price: ${{ data.price }}</li>
                 <li>Marketing Budget: ${{ data.marketing_budget }}</li>
                 <li>Season: {{ data.season }}</li>
-                <li>Timeframe: {{ data.year }} years, {{ data.month }} months, {{ data.weeks }} weeks, {{ data.days }}
-                    days</li>
+                <li>Timeframe: {{ data.year }} years, {{ data.month }} months, {{ data.weeks }} weeks, {{ data.days }} days</li>
             </ul>
 
             <h2>AI Feedback</h2>
-            <p>{{ feedback }}</p>
+            <div class="feedback-box">
+                {{ feedback }}
+            </div>
 
             <h2>Visual Insight</h2>
-            <div style="height:400px;">
+            <div class="chart-container">
                 <canvas id="improvementChart" 
                     data-previous="{{ data.previous_sales }}" 
                     data-predicted="{{ data.predicted_sales }}"
